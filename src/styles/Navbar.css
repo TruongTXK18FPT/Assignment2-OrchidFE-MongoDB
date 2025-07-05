@@ -1,0 +1,266 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+}
+
+.logo-container {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.logo-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #9b4dff;
+  transition: all 0.3s ease;
+}
+
+.sparkle {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  color: #9b4dff;
+  font-size: 1.2rem;
+}
+
+.logo-text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #9b4dff, #7b3cb8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #6a1b9a;
+}
+
+.nav-link.active {
+  color: #6a1b9a;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.active-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #6a1b9a;
+  border-radius: 1px;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-link:hover {
+  background: rgba(155, 77, 255, 0.1);
+  color: #9b4dff;
+}
+
+.mobile-nav-link.active {
+  color: #9b4dff;
+  background: rgba(155, 77, 255, 0.1);
+}
+
+/* Logout button styles */
+.nav-link button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link button:hover {
+  color: #ef4444;
+}
+
+.nav-link button[data-logout="true"] {
+  color: white !important;
+  background: #ef4444 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  border: 2px solid #ef4444 !important;
+}
+
+.nav-link button[data-logout="true"]:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+}
+
+.mobile-nav-link button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: left;
+}
+
+.mobile-nav-link button:hover {
+  color: #ef4444;
+}
+
+.mobile-nav-link button[data-logout="true"] {
+  color: white !important;
+  background: #ef4444 !important;
+  border-radius: 8px !important;
+  margin: 0.5rem !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.mobile-nav-link button[data-logout="true"]:hover {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 1rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .logo-subtitle {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  .nav-container {
+    padding: 0.6rem 1rem;
+  }
+}
