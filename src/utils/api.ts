@@ -20,7 +20,8 @@ import type {
   UpdateOrchidRequest,
   CreateOrderFromCartRequest,
   UpdateOrderRequest,
-  ShoppingCartDTO
+  ShoppingCartDTO,
+  Role
 } from '../types/orchid';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -236,6 +237,11 @@ export const adminAPI = {
 
   deleteAccount: async (id: string): Promise<void> => {
     await api.delete(`/api/admin/accounts/${id}`);
+  },
+
+  getAllRoles: async (): Promise<Role[]> => {
+    const response = await api.get('/api/admin/roles');
+    return response.data;
   },
 };
 

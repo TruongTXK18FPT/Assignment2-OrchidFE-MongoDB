@@ -189,6 +189,14 @@ export const getAvailableRoles = (): Array<{ id: string; name: string; numericId
     ];
   }
   
-  // Admin and others cannot assign roles
-  return [];
+  if (currentUserRoleId === UserRole.ADMIN) {
+    // Admin can assign admin and customer roles
+    return [
+      { id: UserRole.ADMIN, name: 'Admin', numericId: 2 },
+      { id: UserRole.CUSTOMER, name: 'Customer', numericId: 3 }
+    ];
+  }
+  
+  // Others cannot assign roles, but return empty array with correct type
+  return [] as Array<{ id: string; name: string; numericId: number }>;
 };

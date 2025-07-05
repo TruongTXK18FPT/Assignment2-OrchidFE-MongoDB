@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaEdit, FaTrash, FaPlus, FaEye, FaEyeSlash, FaLock, FaInfoCircle, FaCrown } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { adminAPI } from '../../utils/api';
-import { getAvailableRoles, canDeleteUser, canEditUserRole, canEditUser } from '../../utils/permissions';
-import type { AccountDTO, CreateAccountRequest, UpdateAccountRequest } from '../../types/orchid';
+import { canDeleteUser, canEditUserRole, canEditUser } from '../../utils/permissions';
+import type { AccountDTO, CreateAccountRequest, UpdateAccountRequest, Role } from '../../types/orchid';
 
 const EmployeeManagement: React.FC = () => {
   const [employees, setEmployees] = useState<AccountDTO[]>([]);
@@ -13,9 +13,9 @@ const EmployeeManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
   
   // Get user permissions - calculate once when component mounts
-  const availableRoles = getAvailableRoles();
   const canEditRoles = canEditUserRole();
   
   // Form state
@@ -23,11 +23,12 @@ const EmployeeManagement: React.FC = () => {
     accountName: '',
     email: '',
     password: '',
-    roleId: 2 // Default to Admin role (roleId 2)
+    roleId: '' // Will be set when roles are loaded
   });
 
   useEffect(() => {
     fetchEmployees();
+    fetchRoles();
   }, []);
 
   const fetchEmployees = async () => {
@@ -45,6 +46,29 @@ const EmployeeManagement: React.FC = () => {
     } finally {
       setLoading(false);
       setIsFetching(false);
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const roles = await adminAPI.getAllRoles();
+      setAvailableRoles(roles);
+      
+      // Set default role to the first admin-like role found, or first role
+      const adminRole = roles.find(role => 
+        role.roleName.toLowerCase().includes('admin') && 
+        !role.roleName.toLowerCase().includes('super')
+      );
+      const defaultRole = adminRole || roles[0];
+      
+      if (defaultRole && !formData.roleId) {
+        setFormData(prev => ({ ...prev, roleId: defaultRole.roleId }));
+      }
+      
+      console.log(`Loaded ${roles.length} roles successfully!`);
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      toast.error('Failed to load roles. Please try again.');
     }
   };
 
@@ -86,7 +110,7 @@ const EmployeeManagement: React.FC = () => {
       accountName: '',
       email: '',
       password: '',
-      roleId: 2 // Default to Admin role (roleId 2)
+      roleId: getDefaultRoleId() // Default to Admin role
     });
     setIsModalOpen(true);
   };
@@ -121,7 +145,7 @@ const EmployeeManagement: React.FC = () => {
           ...(formData.password.trim() && { password: formData.password })
         };
         
-        const updatedEmployee = await adminAPI.updateAccount(parseInt(currentEmployee.accountId), updateData);
+        const updatedEmployee = await adminAPI.updateAccount(currentEmployee.accountId, updateData);
         setEmployees(employees.map(emp => 
           emp.accountId === currentEmployee.accountId ? updatedEmployee : emp
         ));
@@ -132,9 +156,11 @@ const EmployeeManagement: React.FC = () => {
           accountName: formData.accountName,
           email: formData.email,
           password: formData.password,
-          // Only include roleId if user has permission to edit roles, otherwise default to admin
-          roleId: canEditRoles ? formData.roleId : 2
+          // Use the actual role ID from the selected role
+          roleId: canEditRoles ? formData.roleId : getDefaultRoleId()
         };
+        
+        console.log('Creating account with data:', createData);
         
         const newEmployee = await adminAPI.createAccount(createData);
         setEmployees([...employees, newEmployee]);
@@ -142,7 +168,7 @@ const EmployeeManagement: React.FC = () => {
       }
       
       setIsModalOpen(false);
-      setFormData({ accountName: '', email: '', password: '', roleId: 2 });
+      setFormData({ accountName: '', email: '', password: '', roleId: getDefaultRoleId() });
     } catch (error) {
       console.error('Error saving account:', error);
       toast.error(currentEmployee ? 'Failed to update account' : 'Failed to create account');
@@ -161,7 +187,7 @@ const EmployeeManagement: React.FC = () => {
 
     if (window.confirm('Are you sure you want to delete this account?')) {
       try {
-        await adminAPI.deleteAccount(parseInt(id));
+        await adminAPI.deleteAccount(id);
         setEmployees(employees.filter(emp => emp.accountId !== id));
         toast.success('Account deleted successfully!');
       } catch (error) {
@@ -169,6 +195,15 @@ const EmployeeManagement: React.FC = () => {
         toast.error('Failed to delete account. Please try again.');
       }
     }
+  };
+
+  const getDefaultRoleId = (): string => {
+    // Return a default admin role ID
+    const adminRole = availableRoles.find(role => 
+      role.roleName.toLowerCase().includes('admin') && 
+      !role.roleName.toLowerCase().includes('super')
+    );
+    return adminRole?.roleId || availableRoles[0]?.roleId || '';
   };
 
   if (loading) {
@@ -220,14 +255,14 @@ const EmployeeManagement: React.FC = () => {
               key={employee.accountId}
               variants={rowVariants}
               whileHover={{ backgroundColor: 'rgba(155, 77, 255, 0.05)' }}
-              className={employee.roleId === 1 && !canEditUser(employee.roleId) ? 'protected-account' : ''}
+              className={employee.roleId === 'SUPERADMIN' && !canEditUser(employee.roleId) ? 'protected-account' : ''}
             >
               <td>{employee.accountName}</td>
               <td>{employee.email}</td>
               <td>
                 <div className="role-display-table">
                   <span style={{ textTransform: 'capitalize' }}>{employee.roleName}</span>
-                  {employee.roleId === 1 && <FaCrown className="superadmin-icon" title="Super Admin" />}
+                  {employee.roleId === 'SUPERADMIN' && <FaCrown className="superadmin-icon" title="Super Admin" />}
                 </div>
               </td>
               <td className="action-buttons">
@@ -342,18 +377,18 @@ const EmployeeManagement: React.FC = () => {
                     <select
                       id="roleId"
                       value={formData.roleId}
-                      onChange={(e) => setFormData({ ...formData, roleId: parseInt(e.target.value) })}
+                      onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
                       required
                     >
                       {availableRoles.map(role => (
-                        <option key={role.id} value={role.id}>{role.name}</option>
+                        <option key={role.roleId} value={role.roleId}>{role.roleName}</option>
                       ))}
                     </select>
                   ) : (
                     <div className="role-display">
                       <input
                         type="text"
-                        value={availableRoles.find(r => r.id === formData.roleId)?.name ?? 'Admin'}
+                        value={availableRoles.find(r => r.roleId === formData.roleId)?.roleName ?? 'Admin'}
                         disabled
                         className="disabled-input"
                       />
@@ -369,7 +404,7 @@ const EmployeeManagement: React.FC = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setIsModalOpen(false);
-                      setFormData({ accountName: '', email: '', password: '', roleId: 2 });
+                      setFormData({ accountName: '', email: '', password: '', roleId: getDefaultRoleId() });
                     }}
                   >
                     Cancel
@@ -392,4 +427,4 @@ const EmployeeManagement: React.FC = () => {
   );
 };
 
-export default EmployeeManagement; 
+export default EmployeeManagement;

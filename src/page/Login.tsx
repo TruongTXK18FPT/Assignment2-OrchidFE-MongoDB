@@ -59,9 +59,9 @@ const Login: React.FC = () => {
           login(userData);
           toast.success(`Welcome back, ${userData.accountName}!`);
           
-          // Redirect based on role - handle string roleId from MongoDB
+          // Redirect based on role
           const roleId = userData.roleId;
-          const isAdminRole = roleId === '1' || roleId === '2' ||
+          const isAdminRole = roleId === 'SUPERADMIN' || roleId === 'ADMIN' ||
                              userData.roleName?.toLowerCase() === 'admin' || 
                              userData.roleName?.toLowerCase() === 'superadmin';
           

@@ -75,12 +75,17 @@ const Profile: React.FC = () => {
     }
   };
 
-  const getRoleColor = (roleId: number) => {
-    switch (roleId) {
-      case 1: return '#ff6b6b'; // superadmin - red
-      case 2: return '#4ecdc4'; // admin - teal
-      case 3: return '#45b7d1'; // student - blue
-      default: return '#95a5a6'; // default - gray
+  const getRoleColor = (roleName: string) => {
+    // Use role name for color mapping since that's more reliable
+    const lowerRoleName = roleName.toLowerCase();
+    if (lowerRoleName.includes('superadmin') || lowerRoleName.includes('super admin')) {
+      return '#ff6b6b'; // superadmin - red
+    } else if (lowerRoleName.includes('admin')) {
+      return '#4ecdc4'; // admin - teal
+    } else if (lowerRoleName.includes('customer') || lowerRoleName.includes('user')) {
+      return '#45b7d1'; // customer - blue
+    } else {
+      return '#95a5a6'; // default - gray
     }
   };
 
@@ -200,7 +205,7 @@ const Profile: React.FC = () => {
                 <div className="field-label">Role</div>
                 <span 
                   className="role-badge"
-                  style={{ backgroundColor: getRoleColor(Number(profileData?.roleId) || 0) }}
+                  style={{ backgroundColor: getRoleColor(profileData?.roleName ?? '') }}
                 >
                   {profileData?.roleName}
                 </span>

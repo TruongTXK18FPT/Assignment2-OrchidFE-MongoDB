@@ -18,6 +18,12 @@ export interface Category {
   categoryName: string;
 }
 
+// Role types  
+export interface Role {
+  roleId: string;
+  roleName: string;
+}
+
 // Authentication types
 export interface LoginRequest {
   email: string;

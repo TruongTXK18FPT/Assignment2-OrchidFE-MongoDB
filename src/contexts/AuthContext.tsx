@@ -67,11 +67,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isAuthenticated = !!user;
   
-  // Handle role checking for string roleId values from MongoDB
+  // Handle role checking for string roleId values
   const userRoleId = user?.roleId;
-  const isAdmin = userRoleId === '1' || userRoleId === '2' ||
+  const isAdmin = userRoleId === 'SUPERADMIN' || userRoleId === 'ADMIN' ||
                   user?.roleName?.toLowerCase() === 'admin' || user?.roleName?.toLowerCase() === 'superadmin';
-  const isSuperAdmin = userRoleId === '1' || user?.roleName?.toLowerCase() === 'superadmin';
+  const isSuperAdmin = userRoleId === 'SUPERADMIN' || user?.roleName?.toLowerCase() === 'superadmin';
 
   const value = useMemo(() => ({
     user,
